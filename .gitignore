@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.egg-info/
+
+# Terraform
+infrastructure/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# Ansible
+*.retry
+
+# Environment / secrets
+.env
+*.pem

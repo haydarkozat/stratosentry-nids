@@ -1,0 +1,18 @@
+[Unit]
+# StratoSentry NIDS sensor — managed by Ansible. Do not edit by hand.
+Description=StratoSentry NIDS Sensor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Runs as root because scapy needs raw-socket access for packet sniffing.
+User=root
+WorkingDirectory={{ project_dir }}
+# Use the virtualenv's interpreter so dependencies resolve correctly.
+ExecStart={{ venv_dir }}/bin/python {{ project_dir }}/src/sensor.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

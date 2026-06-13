@@ -1,11 +1,11 @@
 import time
 from scapy.all import sniff, IP, TCP
-from azure_logger import AzureLogAnalyticsLogger
+from cloudwatch_logger import CloudWatchLogger
 
 class StratoSentrySensor:
-    def __init__(self, interface, azure_logger=None):
+    def __init__(self, interface, cloud_logger=None):
         self.interface = interface
-        self.azure_logger = azure_logger
+        self.cloud_logger = cloud_logger
         self.ip_track = {}
         self.SCAN_THRESHOLD = 20  # 10 saniye içinde farklı port isteği eşiği
 
@@ -41,25 +41,26 @@ class StratoSentrySensor:
 
     def trigger_alert(self, alert):
         print(f"[!] TEHDİT TESPİT EDİLDİ: {alert['AlertType']} | Saldırgan: {alert['AttackerIP']}")
-        if self.azure_logger:
-            if self.azure_logger.send_alert(alert):
-                print("[+] Tehdit verisi başarıyla Azure Log Analytics'e aktarıldı.")
+        if self.cloud_logger:
+            if self.cloud_logger.send_alert(alert):
+                print("[+] Tehdit verisi başarıyla AWS CloudWatch Logs'a aktarıldı.")
             else:
                 print("[-] Bulut entegrasyon kaydı başarısız oldu.")
         else:
-             print("[-] Azure Logger yapılandırılmadı, sadece yerel log alındı.")
+             print("[-] CloudWatch Logger yapılandırılmadı, sadece yerel log alındı.")
 
     def start_sniffing(self):
         print(f"[*] StratoSentry Ağ Sensörü Aktif. Dinlenen Arayüz: {self.interface}...")
         sniff(iface=self.interface, prn=self.analyze_packet, store=False)
 
 if __name__ == "__main__":
-    # Test için dummy workspace id'ler (Gerçek senaryoda .env dosyasından çekilecektir)
-    WORKSPACE_ID = "DEMO_WORKSPACE_ID"
-    SHARED_KEY = "DEMO_SHARED_KEY"
-    
-    # azure_logger = AzureLogAnalyticsLogger(workspace_id=WORKSPACE_ID, shared_key=SHARED_KEY)
-    
+    # CloudWatch ayarları (bölge EC2 üzerinde instance profile'dan otomatik alınır)
+    LOG_GROUP = "StratoSentryAlerts"
+    LOG_STREAM = "sensor-alerts"
+    REGION = "eu-central-1"
+
+    # cloud_logger = CloudWatchLogger(log_group=LOG_GROUP, log_stream=LOG_STREAM, region=REGION)
+
     # Wi-Fi arayüzü genellikle en0 olur
-    sensor = StratoSentrySensor(interface="en0", azure_logger=None)
+    sensor = StratoSentrySensor(interface="lo0", cloud_logger=None)
     sensor.start_sniffing()
