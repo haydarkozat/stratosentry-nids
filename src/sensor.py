@@ -55,15 +55,17 @@ class StratoSentrySensor:
         sniff(iface=self.interface, prn=self.analyze_packet, store=False)
 
 if __name__ == "__main__":
-    # CloudWatch ayarları (bölge EC2 üzerinde instance profile'dan otomatik alınır)
-    LOG_GROUP = "StratoSentryAlerts"
-    LOG_STREAM = "sensor-alerts"
-    REGION = "eu-central-1"
+    # CloudWatch ayarları ortam değişkenlerinden alınır. Kimlik doğrulama
+    # EC2 üzerinde IAM instance profile ile otomatiktir (keyless). Bölge
+    # boş bırakılırsa boto3 onu ortam/instance metadata'sından çözer.
+    LOG_GROUP = os.environ.get("STRATOSENTRY_LOG_GROUP", "StratoSentryAlerts")
+    LOG_STREAM = os.environ.get("STRATOSENTRY_LOG_STREAM", "sensor-alerts")
+    REGION = os.environ.get("STRATOSENTRY_REGION") or None
 
-    # cloud_logger = CloudWatchLogger(log_group=LOG_GROUP, log_stream=LOG_STREAM, region=REGION)
+    cloud_logger = CloudWatchLogger(log_group=LOG_GROUP, log_stream=LOG_STREAM, region=REGION)
 
     # Dinlenecek arayüz ortam değişkeninden alınır (Linux'ta ens5/eth0,
     # macOS'ta en0). systemd servisi bunu Environment ile set eder.
     interface = os.environ.get("STRATOSENTRY_IFACE", "ens5")
-    sensor = StratoSentrySensor(interface=interface, cloud_logger=None)
+    sensor = StratoSentrySensor(interface=interface, cloud_logger=cloud_logger)
     sensor.start_sniffing()

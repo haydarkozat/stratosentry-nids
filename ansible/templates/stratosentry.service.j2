@@ -10,6 +10,8 @@ Type=simple
 User=root
 # Network interface to sniff, auto-detected by the playbook for this host.
 Environment=STRATOSENTRY_IFACE={{ nids_interface }}
+# AWS region for CloudWatch Logs (auth is via the IAM instance profile).
+Environment=STRATOSENTRY_REGION={{ aws_region }}
 WorkingDirectory={{ project_dir }}
 # Use the virtualenv's interpreter so dependencies resolve correctly.
 ExecStart={{ venv_dir }}/bin/python {{ project_dir }}/src/sensor.py

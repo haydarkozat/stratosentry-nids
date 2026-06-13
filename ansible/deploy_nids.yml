@@ -23,6 +23,9 @@
     # Network interface the sensor sniffs on. Defaults to the host's primary
     # (default-route) interface, auto-detected via gathered facts.
     nids_interface: "{{ ansible_default_ipv4.interface }}"
+    # AWS region the sensor ships CloudWatch logs to (must match the region
+    # the infrastructure was deployed in).
+    aws_region: "eu-central-1"
 
   tasks:
     - name: Update the apt cache
