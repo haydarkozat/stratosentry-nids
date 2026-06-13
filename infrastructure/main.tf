@@ -196,6 +196,23 @@ resource "aws_iam_instance_profile" "sensor" {
 }
 
 # ---------------------------------------------------------------------------
+# SSH key pair (optional)
+#
+# When var.public_key_path is set, upload that public key as an EC2 key pair
+# so the instance is reachable over SSH (e.g. for the Ansible deployment).
+# ---------------------------------------------------------------------------
+
+resource "aws_key_pair" "sensor" {
+  count      = var.public_key_path != "" ? 1 : 0
+  key_name   = "${var.project_name}-key"
+  public_key = file(var.public_key_path)
+
+  tags = {
+    Name = "${var.project_name}-key"
+  }
+}
+
+# ---------------------------------------------------------------------------
 # Compute: EC2 sensor instance
 # ---------------------------------------------------------------------------
 
@@ -205,7 +222,9 @@ resource "aws_instance" "sensor" {
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.sensor.id]
   iam_instance_profile   = aws_iam_instance_profile.sensor.name
-  key_name               = var.key_name != "" ? var.key_name : null
+  # Prefer the Terraform-managed key pair; fall back to a pre-existing
+  # key name, or no key at all.
+  key_name = var.public_key_path != "" ? aws_key_pair.sensor[0].key_name : (var.key_name != "" ? var.key_name : null)
 
   user_data = <<-EOF
     #!/bin/bash

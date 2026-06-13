@@ -8,6 +8,8 @@ Wants=network-online.target
 Type=simple
 # Runs as root because scapy needs raw-socket access for packet sniffing.
 User=root
+# Network interface to sniff, auto-detected by the playbook for this host.
+Environment=STRATOSENTRY_IFACE={{ nids_interface }}
 WorkingDirectory={{ project_dir }}
 # Use the virtualenv's interpreter so dependencies resolve correctly.
 ExecStart={{ venv_dir }}/bin/python {{ project_dir }}/src/sensor.py

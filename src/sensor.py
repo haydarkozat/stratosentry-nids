@@ -1,3 +1,4 @@
+import os
 import time
 from scapy.all import sniff, IP, TCP
 from cloudwatch_logger import CloudWatchLogger
@@ -61,6 +62,8 @@ if __name__ == "__main__":
 
     # cloud_logger = CloudWatchLogger(log_group=LOG_GROUP, log_stream=LOG_STREAM, region=REGION)
 
-    # Wi-Fi arayüzü genellikle en0 olur
-    sensor = StratoSentrySensor(interface="lo0", cloud_logger=None)
+    # Dinlenecek arayüz ortam değişkeninden alınır (Linux'ta ens5/eth0,
+    # macOS'ta en0). systemd servisi bunu Environment ile set eder.
+    interface = os.environ.get("STRATOSENTRY_IFACE", "ens5")
+    sensor = StratoSentrySensor(interface=interface, cloud_logger=None)
     sensor.start_sniffing()

@@ -50,7 +50,13 @@ variable "ssh_ingress_cidrs" {
 }
 
 variable "key_name" {
-  description = "Name of an existing EC2 key pair for SSH access. Leave empty to launch without a key pair."
+  description = "Name of an existing EC2 key pair for SSH access. Leave empty to launch without a key pair. Ignored when public_key_path is set."
+  type        = string
+  default     = ""
+}
+
+variable "public_key_path" {
+  description = "Path to a local SSH public key file. When set, Terraform creates an EC2 key pair from it and attaches it to the instance. Takes precedence over key_name."
   type        = string
   default     = ""
 }

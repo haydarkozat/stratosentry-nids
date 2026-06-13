@@ -20,6 +20,9 @@
     project_dir: "/opt/stratosentry-nids"
     venv_dir: "/opt/stratosentry-nids/venv"
     service_name: "stratosentry"
+    # Network interface the sensor sniffs on. Defaults to the host's primary
+    # (default-route) interface, auto-detected via gathered facts.
+    nids_interface: "{{ ansible_default_ipv4.interface }}"
 
   tasks:
     - name: Update the apt cache
